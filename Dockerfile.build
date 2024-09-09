@@ -1,0 +1,32 @@
+# Stage 1: Build the Go binary (Optional, but recommended for production)
+FROM golang:1.22 as builder
+
+# Set the Current Working Directory inside the container
+WORKDIR /app
+
+# Copy the Go Modules manifests
+COPY go.mod go.sum ./
+
+# Download Go modules
+RUN go mod download
+
+# Copy the source code
+COPY . .
+
+# Build the Go app (optional step)
+RUN go build -o service .
+
+# Stage 2: Build the final image
+FROM golang:1.22-alpine # Using Go runtime for running `go run`
+
+# Set the Current Working Directory inside the container
+WORKDIR /app
+
+# Copy the source code from the builder stage or from the local repository
+COPY . .
+
+# Expose port 8080 to the outside world
+EXPOSE 8080
+
+# Command to run the Go application with arguments
+CMD ["go", "run", "main.go", "serve"]
