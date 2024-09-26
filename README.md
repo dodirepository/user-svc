@@ -2,6 +2,8 @@
 # User Service
 
 This service running to manage user and also get some token for authentication
+### Workflows
+![workflow](https://github.com/github/docs/actions/workflows/go.yml/badge.svg?branch=main)
 
 ## Development Environment
 ### Local Development
