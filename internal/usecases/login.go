@@ -3,9 +3,9 @@ package usecases
 import (
 	"net/http"
 
+	lib "github.com/dodirepository/common-lib"
 	usecases "github.com/dodirepository/user-svc/internal/domain/usecases"
 	"github.com/dodirepository/user-svc/internal/middleware"
-	"github.com/dodirepository/user-svc/pkg"
 	"github.com/sirupsen/logrus"
 )
 
@@ -25,7 +25,7 @@ func (u *UserUsecase) Login(userLogin usecases.UserLogin) (interface{}, *usecase
 		}
 	}
 
-	if ok := pkg.CheckPasswordHash(userLogin.Password, users.Password); !ok {
+	if ok := lib.CheckPasswordHash(userLogin.Password, users.Password); !ok {
 		return nil, &usecases.ErrorResponse{
 			Message: "Invalid login credentials",
 			Status:  http.StatusUnauthorized,

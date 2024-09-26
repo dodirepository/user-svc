@@ -3,6 +3,7 @@ package middleware
 import (
 	"context"
 	"net/http"
+	"os"
 	"strconv"
 	"time"
 
@@ -11,7 +12,7 @@ import (
 )
 
 var (
-	secretKey = []byte("your_secret_key") // Replace with your own secret key
+	secretKey = []byte(os.Getenv("JWT_SECRET_KEY")) // Replace with your own secret key
 )
 
 type Claims struct {
@@ -53,6 +54,7 @@ func JWTAuthMiddleware(next http.Handler) http.Handler {
 
 		if err != nil {
 			if err == jwt.ErrSignatureInvalid {
+				w.WriteHeader(http.StatusUnauthorized)
 				http.Error(w, "Invalid token signature", http.StatusUnauthorized)
 				return
 			}
@@ -66,9 +68,10 @@ func JWTAuthMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
-		// Set the username in the request context
 		userID := strconv.FormatInt(claims.UserID, 10)
 		r.Header.Set("x-user-id", userID)
+		w.Header().Set("X-User-Id", userID)
+		w.Header().Set("X-User-Id", userID)
 		ctx := context.WithValue(r.Context(), "x-user-id", claims.UserID)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})

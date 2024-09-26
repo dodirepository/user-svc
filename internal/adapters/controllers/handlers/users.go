@@ -1,12 +1,13 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 
+	render "github.com/dodirepository/common-lib"
 	domain "github.com/dodirepository/user-svc/internal/domain/usecases"
-	parser "github.com/dodirepository/user-svc/pkg"
-	render "github.com/dodirepository/user-svc/pkg"
+	"github.com/go-playground/validator/v10"
 )
 
 type UsersHandlersController struct {
@@ -15,11 +16,22 @@ type UsersHandlersController struct {
 
 func (u UsersHandlersController) Create(w http.ResponseWriter, r *http.Request) {
 	payload := domain.UserCreate{}
-	err := parser.ParseBody(r, &payload)
+	err := render.ParseBody(r, &payload)
 	if err != nil {
 		render.Render(domain.ErrorResponse{
 			Message: "Failed To Decode Payload",
 		}, http.StatusUnprocessableEntity, w)
+		return
+	}
+
+	validate := validator.New()
+	trans := render.TranslatorValidatorIDN(validate)
+	err = validate.Struct(payload)
+	errs := render.TranslateError(err, trans)
+	if errs != nil {
+		render.Render(domain.ErrorResponse{
+			Message: fmt.Sprintf("%v", errs),
+		}, http.StatusBadRequest, w)
 		return
 	}
 
@@ -34,11 +46,21 @@ func (u UsersHandlersController) Create(w http.ResponseWriter, r *http.Request) 
 
 func (u UsersHandlersController) Login(w http.ResponseWriter, r *http.Request) {
 	payload := domain.UserLogin{}
-	err := parser.ParseBody(r, &payload)
+	err := render.ParseBody(r, &payload)
 	if err != nil {
 		render.Render(domain.ErrorResponse{
 			Message: "Failed To Decode Payload",
 		}, http.StatusUnprocessableEntity, w)
+		return
+	}
+	validate := validator.New()
+	trans := render.TranslatorValidatorIDN(validate)
+	err = validate.Struct(payload)
+	errs := render.TranslateError(err, trans)
+	if errs != nil {
+		render.Render(domain.ErrorResponse{
+			Message: fmt.Sprintf("%v", errs),
+		}, http.StatusBadRequest, w)
 		return
 	}
 

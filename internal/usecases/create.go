@@ -3,9 +3,9 @@ package usecases
 import (
 	"net/http"
 
+	pkg "github.com/dodirepository/common-lib"
 	domain "github.com/dodirepository/user-svc/internal/domain/repository"
 	usecases "github.com/dodirepository/user-svc/internal/domain/usecases"
-	"github.com/dodirepository/user-svc/pkg"
 	"github.com/sirupsen/logrus"
 )
 

@@ -1,32 +1,37 @@
-# Stage 1: Build the Go binary (Optional, but recommended for production)
-FROM golang:1.22 as builder
+# Use an official Golang image as the base image
+FROM golang:1.22-alpine
+
+RUN apk update && \
+    apk add bash git && \
+    apk add gcc && \
+    apk add musl-dev && \
+    apk add curl && \
+    apk add openssh && \
+    apk add --update make
 
 # Set the Current Working Directory inside the container
 WORKDIR /app
 
-# Copy the Go Modules manifests
+# Copy go.mod and go.sum files to download dependencies
 COPY go.mod go.sum ./
 
 # Download Go modules
 RUN go mod download
 
-# Copy the source code
+# Copy the source code into the container
 COPY . .
 
-# Build the Go app (optional step)
-RUN go build -o service .
+# Copy entrypoint script into the container
+COPY entrypoint.sh /entrypoint.sh
 
-# Stage 2: Build the final image
-FROM golang:1.22-alpine # Using Go runtime for running `go run`
+# Make the entrypoint script executable
+RUN chmod +x /entrypoint.sh
 
-# Set the Current Working Directory inside the container
-WORKDIR /app
 
-# Copy the source code from the builder stage or from the local repository
-COPY . .
-
-# Expose port 8080 to the outside world
+# Expose port 8080
 EXPOSE 8080
 
-# Command to run the Go application with arguments
-CMD ["go", "run", "main.go", "serve"]
+# Use the entrypoint script
+ENTRYPOINT ["/entrypoint.sh"]
+# CMD ["go", "run", "main.go", "serve"]
+

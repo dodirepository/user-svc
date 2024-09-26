@@ -18,7 +18,7 @@ services:
     container_name: db-svc
     image: 'mariadb:latest'
     environment:
-      MARIADB_DATABASE: user-svc
+      MARIADB_DATABASE: user_svc
       MARIADB_ROOT_PASSWORD: passroot
       MARIADB_USER: user_name
       MARIADB_PASS: user_pass
@@ -26,7 +26,7 @@ services:
     volumes:
       - 'userdb-vol:/var/lib/mysql'
     ports:
-      - '3308:3306'
+      - '3306:3306'
     networks:
       - edot-user-network
 volumes:

@@ -3,6 +3,7 @@ package router
 import (
 	"net/http"
 
+	lib "github.com/dodirepository/common-lib"
 	"github.com/dodirepository/user-svc/internal/middleware"
 	"github.com/gorilla/mux"
 )
@@ -21,14 +22,21 @@ func NewRouter() Router {
 // Route :nodoc:
 func (rtr *router) Route() *mux.Router {
 	root := rtr.router.PathPrefix("/").Subrouter()
-	root.HandleFunc("/health", healthCheckControler.Healthcek).Methods(http.MethodGet)
+	internal := root.PathPrefix("/in").Subrouter()
+	v1 := internal.PathPrefix("/v1").Subrouter()
+	v1.Use(middleware.JWTAuthMiddleware)
 
-	in := root.PathPrefix("/in").Subrouter()
-	in.Use(middleware.JWTAuthMiddleware)
-	root.HandleFunc("/login", userController.Login).Methods(http.MethodPost)
-	users := in.PathPrefix("/users").Subrouter()
+	//internal group
+	internal.HandleFunc("/login", userController.Login).Methods(http.MethodPost)
+	internal.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
+		lib.Render("ok", http.StatusOK, w)
+	}).Methods(http.MethodGet)
+	internal.Handle("/validate", middleware.JWTAuthMiddleware(http.HandlerFunc(userController.Detail))).Methods(http.MethodGet)
 
-	users.HandleFunc("",
+	//v1/users group
+	users := v1.PathPrefix("/users").Subrouter()
+
+	internal.HandleFunc("/register",
 		userController.Create).Methods(http.MethodPost)
 	users.HandleFunc("/profile",
 		userController.Detail).Methods(http.MethodGet)

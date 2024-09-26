@@ -4,6 +4,7 @@ import (
 	"context"
 	"os"
 
+	"github.com/dodirepository/user-svc/infrastructure/database"
 	"github.com/dodirepository/user-svc/infrastructure/http"
 	"github.com/joho/godotenv"
 	"github.com/sirupsen/logrus"
@@ -14,17 +15,15 @@ func init() {
 }
 
 // Start :nodoc:
-
-//	func Start(ctx context.Context) {
-//		services := bootstrap.NewService(ctx)
-//		defer services.DisconnectAllConnection(ctx)
-//		startHttpServer(ctx, services)
-//	}
 func Start(ctx context.Context) {
 	httpServer := http.NewHTTPServer()
 	defer httpServer.Done()
+	_, err := database.DBInit()
+	if err != nil {
+		logrus.Fatal("Failed connected to database")
+	}
 
-	logrus.Infof("http server start on port %s", os.Getenv("APP_PORT"))
+	logrus.Infof("http server user service start on port %s", os.Getenv("APP_PORT"))
 	if err := httpServer.Run(ctx); err != nil {
 		logrus.Info("http server stopped")
 	}

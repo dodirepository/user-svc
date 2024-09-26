@@ -4,6 +4,7 @@ import (
 	"github.com/dodirepository/user-svc/infrastructure/database"
 	domain "github.com/dodirepository/user-svc/internal/domain/repository"
 	"github.com/jinzhu/gorm"
+	"github.com/sirupsen/logrus"
 )
 
 type UserRepository struct {
@@ -42,6 +43,7 @@ func (r *UserRepository) Create(req domain.Users) (err error) {
 		Phone:    req.Phone,
 		Password: req.Password,
 	}).Error; err != nil {
+		logrus.WithError(err).Error("Error creating user")
 		return err
 	}
 
